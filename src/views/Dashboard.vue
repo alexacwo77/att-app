@@ -1,14 +1,12 @@
 <template>
   <div class="flex flex-col h-full">
 
-    <!-- CONTENT (scrollable) -->
     <div class="flex-1 overflow-y-auto flex justify-center">
       <div class="w-full max-w-3xl">
         <component :is="currentTabComponent" />
       </div>
     </div>
 
-    <!-- BOTTOM NAV (fixed inside layout) -->
     <div class="border-t bg-white dark:bg-gray-800 flex justify-center">
       <div class="w-full max-w-3xl flex">
         <button

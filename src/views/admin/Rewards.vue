@@ -3,15 +3,12 @@
 
     <h2 class="text-xl font-bold mb-4">Rewards</h2>
 
-    <!-- CREATE TITLE -->
     <div class="font-semibold text-gray-700 dark:text-white mb-2">
       Create New Reward
     </div>
 
-    <!-- CREATE NEW -->
     <div class="reward-card mb-4 flex flex-col gap-3">
 
-      <!-- AVATAR SELECT -->
       <div class="space-y-1">
         <label class="text-xs text-gray-500">Icon</label>
 
@@ -28,28 +25,34 @@
         </div>
       </div>
 
-      <!-- NAME -->
       <input
           v-model="newReward.name"
           class="w-full border rounded p-2 text-sm"
           placeholder="Reward name"
       />
 
-      <!-- TYPE -->
+      <input
+          v-model="newReward.description"
+          class="w-full border rounded p-2 text-sm"
+          placeholder="Reward description"
+      />
+
       <div class="space-y-1">
         <label class="text-xs text-gray-500">Reward Type</label>
         <select
-            v-model="newReward.reward_type_name"
-            class="w-full border rounded p-2 text-xs"
+            v-model="newReward.reward_type_id"
+            class="w-full border rounded p-1 text-xs"
         >
-          <option value="voucher">voucher</option>
-          <option value="food">food</option>
-          <option value="experience">experience</option>
-          <option value="merch">merch</option>
+          <option
+              v-for="type in rewardTypes"
+              :key="type.id"
+              :value="type.id"
+          >
+            {{ type.name }}
+          </option>
         </select>
       </div>
 
-      <!-- NUMERIC FIELDS -->
       <div class="grid grid-cols-3 gap-2 text-xs items-end">
 
         <div class="space-y-1">
@@ -81,7 +84,6 @@
 
       </div>
 
-      <!-- CREATE BUTTON -->
       <button
           class="redeem-btn text-xs w-full disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="!canCreate"
@@ -92,12 +94,10 @@
 
     </div>
 
-    <!-- LOADING -->
     <div v-if="loading" class="flex justify-center py-10">
       <div class="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
 
-    <!-- LIST -->
     <div v-else class="space-y-3">
 
       <div class="font-semibold text-gray-700 dark:text-white mb-2">
@@ -110,12 +110,10 @@
           class="reward-card flex items-start gap-3"
       >
 
-        <!-- AVATAR -->
         <div class="text-3xl mt-1">
           {{ r.avatar || '🎁' }}
         </div>
 
-        <!-- EDIT FIELDS -->
         <div class="flex-1 space-y-2">
 
           <input
@@ -123,21 +121,22 @@
               class="w-full border rounded p-1 text-sm font-semibold"
           />
 
-          <!-- TYPE -->
           <div>
             <label class="text-gray-500 text-xs">Type</label>
             <select
-                v-model="r.reward_type_name"
+                v-model="r.reward_type_id"
                 class="w-full border rounded p-1 text-xs"
             >
-              <option value="voucher">voucher</option>
-              <option value="food">food</option>
-              <option value="experience">experience</option>
-              <option value="merch">merch</option>
+              <option
+                  v-for="type in rewardTypes"
+                  :key="type.id"
+                  :value="type.id"
+              >
+                {{ type.name }}
+              </option>
             </select>
           </div>
 
-          <!-- NUMBERS -->
           <div class="grid grid-cols-3 gap-2 text-xs">
 
             <div>
@@ -159,7 +158,6 @@
 
         </div>
 
-        <!-- ACTIONS -->
         <div class="flex flex-col gap-2 mt-1">
           <button class="redeem-btn text-xs" @click="saveReward(r)">
             Save
@@ -181,7 +179,11 @@
 <script setup>
     import { ref, onMounted, computed } from 'vue'
     import { getRewards, createReward as apiCreateReward, updateReward, deleteReward  } from '../../services/api'
+    import { useToast } from '../../composables/useToast'
+    import { getRewardTypes } from '../../services/api'
 
+    const { showToast } = useToast()
+    const rewardTypes = ref([])
     const rewards = ref([])
     const loading = ref(true)
     const token = localStorage.getItem('token')
@@ -190,7 +192,8 @@
 
     const newReward = ref({
         name: '',
-        reward_type_name: 'voucher',
+        description: '',
+        reward_type_id: null,
         cost: 0,
         stock: 0,
         max_amount: 1,
@@ -202,7 +205,7 @@
 
         return (
             r.name?.trim() &&
-            r.reward_type_name &&
+            r.reward_type_id &&
             r.cost > 0 &&
             r.stock > 0 &&
             r.max_amount >= 0
@@ -210,11 +213,15 @@
     })
 
     onMounted(async () => {
-        try {
-            loading.value = true
-            const res = await getRewards(token)
+        loading.value = true
 
-            rewards.value = (res.rewards || res).map(r => ({
+        try {
+            const typesRes = await getRewardTypes(token)
+            rewardTypes.value = typesRes.reward_types
+
+            const rewardsRes = await getRewards(token)
+
+            rewards.value = (rewardsRes.rewards || rewardsRes).map(r => ({
                 avatar: '🎁',
                 ...r
             }))
@@ -227,21 +234,33 @@
         try {
             const res = await apiCreateReward(newReward.value, token)
 
+            const rewardId = res.data.reward_id
+
             rewards.value.unshift({
-                avatar: newReward.value.avatar,
-                ...res.reward
+                id: rewardId,
+                name: newReward.value.name,
+                reward_type_id: newReward.value.reward_type_id,
+                cost: newReward.value.cost,
+                stock: newReward.value.stock,
+                max_amount: newReward.value.max_amount,
+                picture_filename: newReward.value.picture_filename || null
             })
 
             newReward.value = {
                 name: '',
-                reward_type_name: 'voucher',
+                description: '',
+                reward_type_id: null,
                 cost: 0,
                 stock: 0,
+                redeemed_amount: 0,
                 max_amount: 1,
-                avatar: '☕'
+                picture_id: null
             }
+
+            showToast('Reward created', 'success')
+
         } catch (e) {
-            console.error(e)
+            showToast('Create failed: ' + (e?.message || 'Unknown error'), 'error')
         }
     }
 

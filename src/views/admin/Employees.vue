@@ -1,7 +1,6 @@
 <template>
   <div class="content">
 
-    <!-- LOADING -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-20">
       <div class="w-10 h-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
       <p class="mt-3 text-sm text-gray-500">Loading employees...</p>
@@ -9,14 +8,12 @@
 
     <div v-else>
 
-      <!-- CREATE NEW -->
       <div class="mb-2 text-lg font-semibold">
         Create New Employee
       </div>
 
       <div class="bg-white rounded-xl shadow-sm p-4 mb-5 space-y-3">
 
-        <!-- NAME -->
         <div class="space-y-1">
           <label class="text-gray-500 text-xs">Name</label>
           <input
@@ -26,7 +23,6 @@
           />
         </div>
 
-        <!-- NICKNAME -->
         <div class="space-y-1">
           <label class="text-gray-500 text-xs">Nickname</label>
           <input
@@ -36,7 +32,15 @@
           />
         </div>
 
-        <!-- EMAIL -->
+        <div class="space-y-1">
+          <label class="text-gray-500 text-xs">Password</label>
+          <input
+              v-model="newUser.password"
+              class="border rounded-lg p-2 text-sm w-full"
+              placeholder="Password"
+          />
+        </div>
+
         <div class="space-y-1">
           <label class="text-gray-500 text-xs">Email</label>
           <input
@@ -46,7 +50,6 @@
           />
         </div>
 
-        <!-- POINTS -->
         <div class="space-y-1">
           <label class="text-gray-500 text-xs">Points</label>
           <input
@@ -57,7 +60,6 @@
           />
         </div>
 
-        <!-- BUTTON -->
         <button
             class="w-full bg-blue-600 text-white rounded-lg py-2 text-sm disabled:opacity-50"
             :disabled="!canCreate"
@@ -68,19 +70,16 @@
 
       </div>
 
-      <!-- EXISTING -->
       <div class="mb-2 text-lg font-semibold">
         Existing Employees
       </div>
 
-      <!-- USER CARDS -->
       <div
           v-for="u in employees"
           :key="u.id"
           class="bg-white rounded-xl shadow-sm p-4 mb-3"
       >
 
-        <!-- HEADER -->
         <div class="flex justify-between items-start mb-3">
           <div>
             <div class="font-semibold text-gray-900">
@@ -92,10 +91,8 @@
           </div>
         </div>
 
-        <!-- FIELDS -->
         <div class="grid grid-cols-1 gap-2">
 
-          <!-- NAME -->
           <div class="space-y-1">
             <label class="text-gray-500 text-xs mr-1">Name</label>
             <input
@@ -105,7 +102,6 @@
             />
           </div>
 
-          <!-- NICKNAME -->
           <div class="space-y-1">
             <label class="text-gray-500 text-xs mr-1">Nickname</label>
             <input
@@ -115,7 +111,6 @@
             />
           </div>
 
-          <!-- EMAIL -->
           <div class="space-y-1">
             <label class="text-gray-500 text-xs mr-1">Email</label>
             <input
@@ -125,7 +120,6 @@
             />
           </div>
 
-          <!-- POINTS (READ ONLY) -->
           <div class="space-y-1">
             <label class="text-gray-500 text-xs mr-1">Points</label>
             <div class="text-gray-700 text-sm">
@@ -135,7 +129,6 @@
 
         </div>
 
-        <!-- ACTIONS -->
         <div class="flex justify-end gap-2 mt-3">
 
           <button
@@ -176,7 +169,9 @@
         deleteEmployee as deleteEmployeeApi,
         createEmployee as createEmployeeApi
     } from '../../services/api'
+    import { useToast } from '../../composables/useToast'
 
+    const { showToast } = useToast()
     const employees = ref([])
     const loading = ref(true)
     const token = localStorage.getItem('token')
@@ -186,6 +181,7 @@
     const newUser = ref({
         name: '',
         nickname: '',
+        password: '',
         email: '',
         role_name: 'employee',
         points: 0
@@ -216,11 +212,10 @@
         try {
             const res = await createEmployeeApi(newUser.value, token)
 
-            // normalize API response shape
-            const created = res.user || res.employee || res
+            const created = res.employee || res
 
             const normalizedUser = {
-                id: created.id ?? Date.now(),
+                id: created.employee_id,
                 name: created.name || newUser.value.name,
                 nickname: created.nickname || newUser.value.nickname,
                 email: created.email || newUser.value.email,
@@ -232,7 +227,6 @@
 
             originalEmployees.value.unshift(JSON.parse(JSON.stringify(normalizedUser)))
 
-            // reset form
             newUser.value = {
                 name: '',
                 nickname: '',
@@ -241,8 +235,10 @@
                 points: 0
             }
 
+            showToast('Employee created', 'success');
+
         } catch (e) {
-            alert('Create failed')
+            showToast('Create failed: ' + e.message, 'error')
         }
     }
 
@@ -254,9 +250,9 @@
                 role_name: user.role_name
             }, token)
 
-            alert('Saved')
+            showToast('Saved', 'success')
         } catch (e) {
-            alert('Save failed')
+            showToast('Save failed: ' + e.message, 'error')
         }
     }
 
@@ -265,7 +261,7 @@
             await deleteEmployeeApi(id, token)
             employees.value = employees.value.filter(u => u.id !== id)
         } catch (e) {
-            alert('Delete failed')
+            showToast('Delete failed: ' + e.message, 'error')
         }
     }
 

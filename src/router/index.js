@@ -22,9 +22,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    const token =
-        localStorage.getItem('token') ||
-        sessionStorage.getItem('token')
+    const token = localStorage.getItem('token')
 
     const publicPages = ['/login', '/forgot-password']
     const authRequired = !publicPages.includes(to.path)

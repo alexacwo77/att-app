@@ -1,4 +1,4 @@
-const API = 'http://localhost:8000'
+const API = 'http://localhost:8080'
 
 // Regarding response, see documentation section 4.1. Responses
 
@@ -12,6 +12,12 @@ async function request(endpoint, options = {}, token) {
         ...options,
         headers
     })
+
+    if (res.status === 401) {
+        localStorage.removeItem('token')
+        window.location.href = '/login'
+        throw new Error('Unauthorized')
+    }
 
     let json
     try {
@@ -155,4 +161,24 @@ export function redeemReward(id, amount, token) {
         method: 'POST',
         body: JSON.stringify({ amount })
     }, token)
+}
+
+// Documentation section 4.6. Reward types
+
+export function getRewardTypes(token, params = {}) {
+    const query = new URLSearchParams(params).toString()
+    return request(`/reward_types`, {}, token)
+}
+
+// Documentation section 4.7. Locations
+
+export function getLocations(token, params = {}) {
+    const query = new URLSearchParams(params).toString()
+    return request(`/locations`, {}, token)
+}
+
+// Documentation section 4.8. User Rewards (Redeemed Rewards)
+
+export function getRedeemedRewards(token) {
+    return request(`/user_rewards`, {}, token)
 }

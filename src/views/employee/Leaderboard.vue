@@ -42,13 +42,11 @@
 <template>
   <div class="content">
 
-    <!-- LOADING STATE -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-20">
       <div class="w-10 h-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
       <p class="mt-3 text-sm text-gray-500">Loading leaderboard...</p>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div v-else>
 
       <div class="user-card">

@@ -1,7 +1,6 @@
 <template>
   <div class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 relative p-6">
 
-    <!-- TOAST -->
     <Transition name="toast">
       <div
           v-if="toast"
@@ -54,6 +53,9 @@
     import { ref } from 'vue'
     import { useRouter } from 'vue-router'
     import { login as loginRequest } from '../../services/api'
+    import { useToast } from '../../composables/useToast'
+
+    const { showToast } = useToast()
 
     const router = useRouter()
 
@@ -61,17 +63,7 @@
     const password = ref('')
     const remember = ref(false)
 
-    const toast = ref(null)
     let toastTimer = null
-
-    const showToast = (msg) => {
-        toast.value = msg
-
-        clearTimeout(toastTimer)
-        toastTimer = setTimeout(() => {
-            toast.value = null
-        }, 2500)
-    }
 
     const handleLogin = async () => {
         try {
@@ -82,16 +74,20 @@
 
             const token = res.token
 
+            localStorage.setItem('token', token)
+
+            /* TODO:
             if (remember.value) {
                 localStorage.setItem('token', token)
             } else {
                 sessionStorage.setItem('token', token)
             }
+             */
 
             router.push('/')
 
         } catch (e) {
-            showToast('Invalid credentials')
+            showToast('Authentication error: ' + e.message, 'error')
         }
     }
 </script>

@@ -37,13 +37,16 @@
 
 <script setup>
     import { ref } from 'vue'
-    import { request } from '../../services/api'
+    // TODO: fix later
+    //import { request } from '../../services/api'
 
     const email = ref('')
     const message = ref('')
     const error = ref('')
 
     const submit = async () => {
+        // TODO: fix later
+        /*
         message.value = ''
         error.value = ''
 
@@ -57,5 +60,6 @@
         } catch (e) {
             error.value = e.message || 'Email not found'
         }
+        */
     }
 </script>

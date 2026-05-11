@@ -532,3 +532,10 @@ body {
   opacity: 0;
   transform: translate(-50%, -10px) scale(1.05);
 }
+
+.section-header {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #2d3748;
+}
