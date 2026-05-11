@@ -9,68 +9,6 @@
     <div v-else>
 
       <div class="mb-2 text-lg font-semibold">
-        Create New Employee
-      </div>
-
-      <div class="bg-white rounded-xl shadow-sm p-4 mb-5 space-y-3">
-
-        <div class="space-y-1">
-          <label class="text-gray-500 text-xs">Name</label>
-          <input
-              v-model="newUser.name"
-              class="border rounded-lg p-2 text-sm w-full"
-              placeholder="Name"
-          />
-        </div>
-
-        <div class="space-y-1">
-          <label class="text-gray-500 text-xs">Nickname</label>
-          <input
-              v-model="newUser.nickname"
-              class="border rounded-lg p-2 text-sm w-full"
-              placeholder="Nickname"
-          />
-        </div>
-
-        <div class="space-y-1">
-          <label class="text-gray-500 text-xs">Password</label>
-          <input
-              v-model="newUser.password"
-              class="border rounded-lg p-2 text-sm w-full"
-              placeholder="Password"
-          />
-        </div>
-
-        <div class="space-y-1">
-          <label class="text-gray-500 text-xs">Email</label>
-          <input
-              v-model="newUser.email"
-              class="border rounded-lg p-2 text-sm w-full"
-              placeholder="Email"
-          />
-        </div>
-
-        <div class="space-y-1">
-          <label class="text-gray-500 text-xs">Points</label>
-          <input
-              v-model.number="newUser.points"
-              type="number"
-              class="border rounded-lg p-2 text-sm w-full"
-              placeholder="Points"
-          />
-        </div>
-
-        <button
-            class="w-full bg-blue-600 text-white rounded-lg py-2 text-sm disabled:opacity-50"
-            :disabled="!canCreate"
-            @click="createEmployee"
-        >
-          Create
-        </button>
-
-      </div>
-
-      <div class="mb-2 text-lg font-semibold">
         Existing Employees
       </div>
 
@@ -95,29 +33,23 @@
 
           <div class="space-y-1">
             <label class="text-gray-500 text-xs mr-1">Name</label>
-            <input
-                v-model="u.name"
-                class="border rounded-lg p-2 text-sm"
-                placeholder="Name"
-            />
+            <div class="text-gray-700 text-sm">
+              <span class="font-semibold">{{ u.name }}</span>
+            </div>
           </div>
 
           <div class="space-y-1">
             <label class="text-gray-500 text-xs mr-1">Nickname</label>
-            <input
-                v-model="u.nickname"
-                class="border rounded-lg p-2 text-sm"
-                placeholder="Nickname"
-            />
+            <div class="text-gray-700 text-sm">
+              <span class="font-semibold">{{ u.nickname }}</span>
+            </div>
           </div>
 
           <div class="space-y-1">
             <label class="text-gray-500 text-xs mr-1">Email</label>
-            <input
-                v-model="u.email"
-                class="border rounded-lg p-2 text-sm"
-                placeholder="Email"
-            />
+            <div class="text-gray-700 text-sm">
+              <span class="font-semibold">{{ u.email }}</span>
+            </div>
           </div>
 
           <div class="space-y-1">
@@ -126,31 +58,6 @@
               <span class="font-semibold">{{ u.points }}</span>
             </div>
           </div>
-
-        </div>
-
-        <div class="flex justify-end gap-2 mt-3">
-
-          <button
-              class="text-sm px-3 py-1 rounded-lg bg-gray-200"
-              @click="resetEmployee(u.id)"
-          >
-            Reset
-          </button>
-
-          <button
-              class="text-sm px-3 py-1 rounded-lg bg-red-500 text-white"
-              @click="deleteEmployee(u.id)"
-          >
-            Delete
-          </button>
-
-          <button
-              class="text-sm px-3 py-1 rounded-lg bg-blue-600 text-white"
-              @click="saveEmployee(u)"
-          >
-            Save
-          </button>
 
         </div>
 
