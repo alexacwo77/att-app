@@ -237,32 +237,24 @@
   }
 
   @media (max-width: 480px) {
-    body {
-      padding: 16px;
+
+    .login-container {
+      height: 100%;
+      width: 100%;
+      display: flex;
     }
 
     .login-card {
-      padding: 32px 24px;
-      border-radius: 16px;
-    }
-
-    .login-header h1 {
-      font-size: 1.625rem;
-    }
-
-    .form-options {
+      width: 100%;
+      height: calc(100vh - 32px);
+      margin: 0 16px;
+      border-radius: 20px;
+      padding: 28px 20px;
+      display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
-    }
-
-    .social-login {
-      flex-direction: column;
-    }
-
-    .social-btn {
       justify-content: center;
     }
+
   }
 
   .remember {
