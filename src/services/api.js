@@ -1,4 +1,4 @@
-const API = 'http://localhost:8080'
+const API = 'https://att-backend-fdel.onrender.com/'
 
 // Regarding response, see documentation section 4.1. Responses
 
