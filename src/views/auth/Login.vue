@@ -6,7 +6,7 @@
       <div class="login-card">
 
         <div class="icon-wrapper">
-          <img :src="loginIcon" alt="Login Icon" />
+          <img src="/login-icon.svg" alt="Login Icon" />
         </div>
 
         <h2 class="title">KissMeet</h2>
@@ -36,8 +36,10 @@
             </router-link>
           </div>
 
-          <button class="btn">
-            Sign In
+          <button class="btn" :disabled="loading">
+            <span v-if="!loading">Sign In</span>
+
+            <span v-else class="spinner"></span>
           </button>
 
         </form>
@@ -52,7 +54,6 @@
     import { useRouter } from 'vue-router'
     import { login as loginRequest } from '../../services/api'
     import { useToast } from '../../composables/useToast'
-    import loginIcon from '../../assets/login-icon.svg'
 
     const { showToast } = useToast()
     const router = useRouter()
@@ -60,8 +61,11 @@
     const email = ref('')
     const password = ref('')
     const remember = ref(false)
+    const loading = ref(false)
 
     const handleLogin = async () => {
+        loading.value = true
+
         try {
             const res = await loginRequest({
                 email: email.value,
@@ -72,6 +76,8 @@
             router.push('/')
         } catch (e) {
             showToast('Login failed: ' + e.message, 'error')
+        } finally {
+            loading.value = false
         }
     }
 </script>
@@ -325,5 +331,28 @@
       opacity: 1;
       transform: rotate(45deg) scale(1);
     }
+  }
+
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* optional UX improvement */
+  .btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 </style>

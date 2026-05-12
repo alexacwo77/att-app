@@ -1,4 +1,4 @@
-const API = 'https://att-backend-fdel.onrender.com'
+const API = 'http://localhost:8080'
 
 // Regarding response, see documentation section 4.1. Responses
 
@@ -179,8 +179,27 @@ export function getLocations(token, params = {}) {
 
 // Documentation section 4.8. User Rewards (Redeemed Rewards)
 
-export function getRedeemedRewards(token) {
-    return request(`/user_rewards`, {}, token)
+export function getRedeemedRewards(token, userId = null) {
+    const query = new URLSearchParams()
+
+    if (userId) {
+        query.append('user_id', userId)
+    }
+
+    const queryString = query.toString()
+
+    return request(
+        `/user_rewards${queryString ? `?${queryString}` : ''}`,
+        {},
+        token
+    )
+}
+
+export function updateUserReward(id, data, token) {
+    return request(`/user_rewards/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    }, token)
 }
 
 // Documentation section 4.9. Pictures

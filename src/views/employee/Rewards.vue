@@ -14,7 +14,7 @@
       </div>
 
       <RedeemedRewards
-          :rewards="redeemedRewards"
+          :rewards="activeRedeemedRewards"
       />
 
       <AvailableRewards
@@ -24,13 +24,17 @@
           @redeemed="handleRewardRedeemed"
       />
 
+      <UsedRewards
+          :rewards="usedRewards"
+      />
+
     </div>
 
   </div>
 </template>
 
 <script setup>
-    import { ref, onMounted } from 'vue'
+    import { ref, onMounted, computed } from 'vue'
     import {
         getMe,
         getRewards,
@@ -40,11 +44,24 @@
 
     import AvailableRewards from "./Rewards/AvailableRewards.vue"
     import RedeemedRewards from "./Rewards/RedeemedRewards.vue"
-
+    import UsedRewards from "./Rewards/UsedRewards.vue"
 
     const rewardTypes = ref([])
     const rewards = ref([])
     const redeemedRewards = ref([])
+    const currentUserId = ref(null)
+
+    const activeRedeemedRewards = computed(() => {
+        return redeemedRewards.value.filter(
+            reward => reward.isUsed !== true
+        )
+    })
+
+    const usedRewards = computed(() => {
+        return redeemedRewards.value.filter(
+            reward => reward.isUsed === true
+        )
+    })
 
     const loading = ref(true)
     const userPoints = ref(0)
@@ -60,21 +77,21 @@
             const [
                 rewardsRes,
                 me,
-                typesRes,
-                redeemedRes
+                typesRes
             ] = await Promise.all([
                 getRewards(token, { available_only: true }),
                 getMe(token),
-                getRewardTypes(token),
-                getRedeemedRewards(token)
+                getRewardTypes(token)
             ])
+
+            userPoints.value = me.points
+            currentUserId.value = me.id
+
+            const redeemedRes = await getRedeemedRewards(token, currentUserId.value)
 
             rewards.value = rewardsRes.rewards || []
             rewardTypes.value = typesRes.reward_types || []
-
             redeemedRewards.value = redeemedRes.rewards || []
-
-            userPoints.value = me.points
 
         } finally {
 
@@ -106,11 +123,9 @@
 
         redeemedRewards.value.unshift({
             id: Date.now(),
-
             amount: 1,
-
             redeemedAt: new Date().toISOString(),
-
+            isUsed: false,
             reward: {
                 id: reward.id,
                 name: reward.name,

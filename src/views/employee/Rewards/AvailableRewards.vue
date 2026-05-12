@@ -35,8 +35,8 @@
       <div class="reward-icon">
 
         <img
-            v-if="reward.picture_filename"
-            :src="reward.picture_filename"
+            v-if="reward.picture.fileName"
+            :src="reward.picture.fileName"
             class="w-10 h-10 object-cover rounded"
         />
 

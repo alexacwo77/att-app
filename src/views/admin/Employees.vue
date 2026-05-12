@@ -59,6 +59,57 @@
             </div>
           </div>
 
+          <div
+              v-if="getRewardsByUser(u.id).length"
+              class="mt-4 border-t pt-3"
+          >
+
+            <div class="text-sm font-semibold text-gray-700 mb-2">
+              Rewards
+            </div>
+
+            <div
+                v-for="rewardItem in getRewardsByUser(u.id)"
+                :key="rewardItem.id"
+                class="flex items-center justify-between bg-gray-50 rounded-lg p-3 mb-2"
+            >
+
+              <div>
+
+                <div class="font-medium text-sm">
+                  {{ rewardItem.reward.name }}
+                </div>
+
+                <div class="text-xs text-gray-500">
+                  Amount: {{ rewardItem.amount }}
+                </div>
+
+                <div class="text-xs text-gray-500">
+                  Redeemed:
+                  {{ formatDate(rewardItem.redeemedAt) }}
+                </div>
+
+                <div v-if="rewardItem.isUsed"
+                    class="text-xs font-semibold mt-1 text-gray-400"
+                >
+                  Used:
+                  {{ formatDate(rewardItem.usedAt) }}
+                </div>
+
+              </div>
+
+              <button
+                  v-if="rewardItem.isUsed !== true"
+                  @click="markRewardUsed(rewardItem)"
+                  class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-lg"
+              >
+                Mark Used
+              </button>
+
+            </div>
+
+          </div>
+
         </div>
 
       </div>
@@ -72,17 +123,16 @@
     import { ref, onMounted, computed } from 'vue'
     import {
         getEmployees,
-        updateEmployee,
-        deleteEmployee as deleteEmployeeApi,
-        createEmployee as createEmployeeApi
+        updateUserReward,
+        getRedeemedRewards
     } from '../../services/api'
     import { useToast } from '../../composables/useToast'
 
     const { showToast } = useToast()
     const employees = ref([])
+    const userRewards = ref([])
     const loading = ref(true)
     const token = localStorage.getItem('token')
-
     const originalEmployees = ref([])
 
     const newUser = ref({
@@ -101,83 +151,73 @@
         )
     })
 
+    const getRewardsByUser = (userId) => {
+
+        return userRewards.value.filter(
+            reward => reward.userId === userId
+        )
+    }
+
     onMounted(async () => {
         try {
             loading.value = true
 
-            const res = await getEmployees(token)
+            const [
+                employeesRes,
+                rewardsRes
+            ] = await Promise.all([
+                getEmployees(token),
+                getRedeemedRewards(token)
+            ])
 
-            employees.value = res.employees
-            originalEmployees.value = JSON.parse(JSON.stringify(res.employees))
+            employees.value = employeesRes.employees
+
+            originalEmployees.value = JSON.parse(
+                JSON.stringify(employeesRes.employees)
+            )
+
+            userRewards.value = rewardsRes.rewards || []
 
         } finally {
             loading.value = false
         }
     })
 
-    const createEmployee = async () => {
+    const markRewardUsed = async (rewardItem) => {
+
         try {
-            const res = await createEmployeeApi(newUser.value, token)
 
-            const created = res.employee || res
+            await updateUserReward(
+                rewardItem.id,
+                {
+                    is_used: true
+                },
+                token
+            )
 
-            const normalizedUser = {
-                id: created.employee_id,
-                name: created.name || newUser.value.name,
-                nickname: created.nickname || newUser.value.nickname,
-                email: created.email || newUser.value.email,
-                points: created.points ?? newUser.value.points,
-                role_name: created.role_name || newUser.value.role_name
-            }
+            rewardItem.isUsed = true
+            rewardItem.usedAt = new Date().toISOString()
 
-            employees.value.unshift(normalizedUser)
-
-            originalEmployees.value.unshift(JSON.parse(JSON.stringify(normalizedUser)))
-
-            newUser.value = {
-                name: '',
-                nickname: '',
-                email: '',
-                role_name: 'employee',
-                points: 0
-            }
-
-            showToast('Employee created', 'success');
+            showToast(
+                'Reward marked as used',
+                'success'
+            )
 
         } catch (e) {
-            showToast('Create failed: ' + e.message, 'error')
+
+            showToast(
+                'Failed to update reward',
+                'error'
+            )
         }
     }
 
-    const saveEmployee = async (user) => {
-        try {
-            await updateEmployee(user.id, {
-                nickname: user.nickname,
-                email: user.email,
-                role_name: user.role_name
-            }, token)
+    const formatDate = (d) => {
 
-            showToast('Saved', 'success')
-        } catch (e) {
-            showToast('Save failed: ' + e.message, 'error')
-        }
-    }
-
-    const deleteEmployee = async (id) => {
-        try {
-            await deleteEmployeeApi(id, token)
-            employees.value = employees.value.filter(u => u.id !== id)
-        } catch (e) {
-            showToast('Delete failed: ' + e.message, 'error')
-        }
-    }
-
-    const resetEmployee = (id) => {
-        const original = originalEmployees.value.find(u => u.id === id)
-        const target = employees.value.find(u => u.id === id)
-
-        if (original && target) {
-            Object.assign(target, JSON.parse(JSON.stringify(original)))
-        }
+        return new Date(d).toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        })
     }
 </script>

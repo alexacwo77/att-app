@@ -30,7 +30,7 @@
 
     import AdminEmployees from '../views/admin/Employees.vue'
     import AdminRewards from '../views/admin/Rewards.vue'
-    import AdminEvents from '../views/admin/Events.vue'
+    import AdminEvents from '../views/admin/Events/Events.vue'
     import AdminSettings from '../views/admin/Settings.vue'
 
     import Leaderboard from '../views/employee/Leaderboard.vue'
