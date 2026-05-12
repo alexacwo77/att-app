@@ -15,7 +15,7 @@
             :class="selectedAvatar?.id === avatar.id ? 'border-blue-500' : 'border-transparent'"
         >
           <img
-              :src="`/src/assets${avatar.fileName}`"
+              :src="`${avatar.fileName}`"
               class="w-8 h-8"
           />
         </button>
@@ -117,13 +117,13 @@
     const activeAvatarFile = computed(() => {
         if (!selectedAvatar.value?.fileName) {
             return new URL(
-                '../../assets/default-user-avatar.svg',
+                '/default-user-avatar.svg',
                 import.meta.url
             ).href
         }
 
         return new URL(
-            '../../assets' + selectedAvatar.value.fileName,
+            selectedAvatar.value.fileName,
             import.meta.url
         ).href
     })

@@ -23,7 +23,7 @@
                 : 'border-transparent'"
                 >
             <img
-                :src="`/src/assets${picture.fileName}`"
+                :src="`${picture.fileName}`"
                 class="w-10 h-10"
             />
           </button>
@@ -118,13 +118,13 @@
         <div class="mt-1">
           <img
               v-if="r.picture?.fileName"
-              :src="`/src/assets${r.picture.fileName}`"
+              :src="`${r.picture.fileName}`"
               class="w-12 h-12"
           />
 
           <img
               v-else
-              src="/src/assets/default-reward.svg"
+              src="/default-reward.svg"
               class="w-12 h-12"
           />
         </div>
