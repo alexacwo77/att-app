@@ -182,3 +182,10 @@ export function getLocations(token, params = {}) {
 export function getRedeemedRewards(token) {
     return request(`/user_rewards`, {}, token)
 }
+
+// Documentation section 4.9. Pictures
+
+export function getPictures(token, params = {}) {
+    const query = new URLSearchParams(params).toString()
+    return request(`/pictures${query ? `?${query}` : ''}`, {}, token)
+}

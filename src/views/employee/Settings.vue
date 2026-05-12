@@ -3,22 +3,21 @@
 
     <div class="profile-header">
       <div class="large-avatar">
-        {{ selectedAvatar }}
+        <img :src="activeAvatarFile" />
       </div>
 
-      <div class="mt-2 text-sm text-blue-600 cursor-pointer">
-        Change Avatar
-      </div>
-
-      <div class="flex gap-2 mt-3 justify-center">
+      <div class="flex gap-2 mt-3 justify-center flex-wrap">
         <button
             v-for="avatar in avatars"
-            :key="avatar"
+            :key="avatar.id"
             @click="selectedAvatar = avatar"
-            class="text-xl p-2 rounded-lg border"
-            :class="selectedAvatar === avatar ? 'border-blue-500' : 'border-transparent'"
+            class="p-1 rounded-lg border w-10 h-10 flex items-center justify-center"
+            :class="selectedAvatar?.id === avatar.id ? 'border-blue-500' : 'border-transparent'"
         >
-          {{ avatar }}
+          <img
+              :src="`/src/assets${avatar.fileName}`"
+              class="w-8 h-8"
+          />
         </button>
       </div>
 
@@ -34,7 +33,15 @@
           type="email"
           v-model="email"
           placeholder="Email"
+          readonly
+          disabled
       />
+
+      <button class="text-blue-600 text-sm"
+              @click="saveProfile"
+      >
+        Save changes
+      </button>
 
       <div class="mt-3 text-sm text-gray-500">
         Points: <b>{{ points }}</b>
@@ -83,9 +90,13 @@
 </template>
 
 <script setup>
-    import { ref, onMounted } from 'vue'
+    import { ref, onMounted, computed } from 'vue'
     import { useRouter } from 'vue-router'
-    import { getMe, logout as logoutRequest } from '../../services/api'
+    import { getMe, logout as logoutRequest, updateEmployee } from '../../services/api'
+    import { getPictures } from '../../services/api'
+    import { useToast } from '../../composables/useToast'
+
+    const { showToast } = useToast()
 
     const router = useRouter()
 
@@ -93,21 +104,46 @@
 
     const isDark = ref(false)
 
+    const userId = ref(null)
     const nickname = ref('')
     const email = ref('')
     const points = ref(0)
 
-    const avatars = ['🦊', '🐱', '🐶', '🐼', '🐸']
-    const selectedAvatar = ref('🦊')
+    const avatars = ref([])
+    const selectedAvatar = ref(null)
+
+    const DEFAULT_AVATAR = 1
+
+    const activeAvatarFile = computed(() => {
+        if (!selectedAvatar.value?.fileName) {
+            return new URL(
+                '../../assets/default-user-avatar.svg',
+                import.meta.url
+            ).href
+        }
+
+        return new URL(
+            '../../assets' + selectedAvatar.value.fileName,
+            import.meta.url
+        ).href
+    })
 
     onMounted(async () => {
         const me = await getMe(token)
 
+        userId.value = me.id
         nickname.value = me.nickname || me.name
         email.value = me.email
         points.value = me.points || 0
 
-        selectedAvatar.value = me.avatar || '🦊'
+        const res = await getPictures(token, {
+            type: 'USER_AVATAR'
+        })
+
+        avatars.value = res.pictures || []
+
+        selectedAvatar.value =
+            avatars.value.find(a => a.id === me.picture_id) || null
 
         const saved = localStorage.getItem('theme')
         isDark.value = saved === 'dark'
@@ -120,6 +156,23 @@
 
         document.documentElement.classList.toggle('dark', isDark.value)
         localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+    }
+
+    const saveProfile = async () => {
+        try {
+            await updateEmployee(
+                userId.value,
+                {
+                    nickname: nickname.value,
+                    picture_id: selectedAvatar.value?.id || null,
+                },
+                token
+            )
+
+            showToast('Profile updated', 'success');
+        } catch (e) {
+            showToast('Profile update failed: ' + e.message, 'error')
+        }
     }
 
     const handleLogout = async () => {
@@ -186,5 +239,11 @@
 
   .toggle-btn:not(.active) .icon i {
     transform: rotate(0deg);
+  }
+
+  .nickname-input:disabled {
+    background: #f3f3f3;
+    color: #888;
+    cursor: not-allowed;
   }
 </style>

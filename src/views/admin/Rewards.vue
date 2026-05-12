@@ -14,13 +14,18 @@
 
         <div class="flex gap-2 flex-wrap">
           <button
-              v-for="a in rewardAvatars"
-              :key="a"
-              @click="newReward.avatar = a"
-              class="text-xl p-2 rounded border"
-              :class="newReward.avatar === a ? 'border-blue-500' : 'border-transparent'"
-          >
-            {{ a }}
+              v-for="picture in rewardPictures"
+              :key="picture.id"
+              @click="newReward.picture = picture"
+              class="p-1 rounded border"
+              :class="newReward.picture?.id === picture.id
+                ? 'border-blue-500'
+                : 'border-transparent'"
+                >
+            <img
+                :src="`/src/assets${picture.fileName}`"
+                class="w-10 h-10"
+            />
           </button>
         </div>
       </div>
@@ -110,8 +115,18 @@
           class="reward-card flex items-start gap-3"
       >
 
-        <div class="text-3xl mt-1">
-          {{ r.avatar || '🎁' }}
+        <div class="mt-1">
+          <img
+              v-if="r.picture?.fileName"
+              :src="`/src/assets${r.picture.fileName}`"
+              class="w-12 h-12"
+          />
+
+          <img
+              v-else
+              src="/src/assets/default-reward.svg"
+              class="w-12 h-12"
+          />
         </div>
 
         <div class="flex-1 space-y-2">
@@ -178,9 +193,15 @@
 
 <script setup>
     import { ref, onMounted, computed } from 'vue'
-    import { getRewards, createReward as apiCreateReward, updateReward, deleteReward  } from '../../services/api'
+    import {
+        getRewards,
+        createReward as apiCreateReward,
+        updateReward,
+        deleteReward,
+        getRewardTypes,
+        getPictures
+    } from '../../services/api'
     import { useToast } from '../../composables/useToast'
-    import { getRewardTypes } from '../../services/api'
 
     const { showToast } = useToast()
     const rewardTypes = ref([])
@@ -188,7 +209,7 @@
     const loading = ref(true)
     const token = localStorage.getItem('token')
 
-    const rewardAvatars = ['☕', '🎟️', '⏰', '🪑', '🍔', '🎮', '📚', '🛍️']
+    const rewardPictures = ref([])
 
     const newReward = ref({
         name: '',
@@ -197,7 +218,8 @@
         cost: 0,
         stock: 0,
         max_amount: 1,
-        avatar: '☕'
+        picture_id: null,
+        picture: null
     })
 
     const canCreate = computed(() => {
@@ -221,10 +243,13 @@
 
             const rewardsRes = await getRewards(token)
 
-            rewards.value = (rewardsRes.rewards || rewardsRes).map(r => ({
-                avatar: '🎁',
-                ...r
-            }))
+            rewards.value = rewardsRes.rewards
+
+            const picturesRes = await getPictures(token, {
+                type: 'REWARD_AVATAR'
+            })
+
+            rewardPictures.value = picturesRes.pictures || []
         } finally {
             loading.value = false
         }
@@ -232,7 +257,12 @@
 
     const createReward = async () => {
         try {
-            const res = await apiCreateReward(newReward.value, token)
+            const payload = {
+                ...newReward.value,
+                picture_id: newReward.value.picture?.id || null
+            }
+
+            const res = await apiCreateReward(payload, token)
 
             const rewardId = res.data.reward_id
 
@@ -243,7 +273,7 @@
                 cost: newReward.value.cost,
                 stock: newReward.value.stock,
                 max_amount: newReward.value.max_amount,
-                picture_filename: newReward.value.picture_filename || null
+                picture: newReward.value.picture
             })
 
             newReward.value = {
@@ -254,7 +284,8 @@
                 stock: 0,
                 redeemed_amount: 0,
                 max_amount: 1,
-                picture_id: null
+                picture_id: null,
+                picture: null
             }
 
             showToast('Reward created', 'success')
