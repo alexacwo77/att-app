@@ -154,7 +154,7 @@
             <div class="space-y-1">
               <label class="text-gray-500 text-xs">Type</label>
               <select
-                  v-model="r.reward_type_id"
+                  v-model="r.rewardType.id"
                   class="w-full border rounded-lg p-2 text-sm"
               >
                 <option
@@ -179,7 +179,7 @@
 
             <div class="space-y-1">
               <label class="text-gray-500">Max Amount</label>
-              <input v-model.number="r.max_amount" type="number" class="w-full border rounded-lg p-2 text-sm"/>
+              <input v-model.number="r.maxAmount" type="number" class="w-full border rounded-lg p-2 text-sm"/>
             </div>
 
           </div>
