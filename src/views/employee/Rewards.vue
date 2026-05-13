@@ -19,6 +19,7 @@
 
       <AvailableRewards
           :rewards="rewards"
+          :redeemedRewards="redeemedRewards"
           :userPoints="userPoints"
           :rewardTypes="rewardTypes"
           @redeemed="handleRewardRedeemed"
@@ -104,7 +105,7 @@
         userPoints.value -= reward.cost
 
         const existing = redeemedRewards.value.find(
-            r => r.reward.id === reward.id
+            r => r.reward.id === reward.id && r.isUsed !== true
         )
 
         if (existing) {
@@ -129,7 +130,7 @@
             reward: {
                 id: reward.id,
                 name: reward.name,
-                picture_filename: reward.picture_filename
+                picture_filename: reward.picture.fileName
             }
         })
     }

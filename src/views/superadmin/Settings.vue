@@ -10,7 +10,7 @@
       <div class="flex justify-between items-center">
 
         <div>
-          <div class="font-semibold">Admin Account</div>
+          <div class="font-semibold">Superadmin Account</div>
           <div class="text-sm text-gray-500">
             Manage session
           </div>
@@ -23,8 +23,7 @@
           <span class="shadow"></span>
           <span class="edge"></span>
 
-          <i v-if="loading" class="spinner"></i>
-          <span class="front" v-if="!loading">
+          <span class="front">
             <i class="fa-solid fa-right-from-bracket"></i>
             Log Out
           </span>
@@ -40,20 +39,15 @@
 <script setup>
     import { useRouter } from 'vue-router'
     import { logout } from '../../services/api'
-    import {ref} from "vue";
 
     const router = useRouter()
     const token = localStorage.getItem('token')
-    const loading = ref(false)
 
     const handleLogout = async () => {
-        loading.value = true
         try {
             await logout(token)
         } catch (e) {
             console.warn('Logout failed:', e)
-        } finally {
-            loading.value = false
         }
 
         localStorage.removeItem('token')

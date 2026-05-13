@@ -71,19 +71,13 @@
       >
         <span class="rank">{{ index + 1 }}</span>
 
-        <div
-            class="avatar"
-            :class="{
-            gold: index === 0,
-            silver: index === 1,
-            bronze: index === 2,
-            purple: index > 2
-          }"
-        >
-          <span v-if="index === 0">🥇</span>
-          <span v-else-if="index === 1">🥈</span>
-          <span v-else-if="index === 2">🥉</span>
-          <span v-else>👤</span>
+        <div class="avatar">
+          <span>
+            <img
+                :src="user.picture ? user.picture.fileName : '/default-user-avatar.svg'"
+                class="w-8 h-8"
+            />
+          </span>
         </div>
 
         <div class="user-info">

@@ -37,17 +37,27 @@
           disabled
       />
 
-      <button class="text-blue-600 text-sm"
-              @click="saveProfile"
-      >
-        Save changes
-      </button>
+      <div class="flex justify-end mt-4">
+        <button
+            class="pushable save"
+            @click="saveProfile"
+        >
+          <span class="shadow"></span>
+          <span class="edge"></span>
+
+          <span class="front">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save changes
+          </span>
+        </button>
+      </div>
 
       <div class="mt-3 text-sm text-gray-500">
         Points: <b>{{ points }}</b>
       </div>
     </div>
 
+    <!-- TODO: disable temporarily
     <div class="settings-section">
       <div class="section-title">Security</div>
 
@@ -58,6 +68,7 @@
         </button>
       </div>
     </div>
+    -->
 
     <div class="settings-section">
       <div class="section-title">Appearance</div>
@@ -78,11 +89,27 @@
       </div>
     </div>
 
-    <div class="settings-section">
-      <div class="section-title">Account</div>
 
-      <div class="logout cursor-pointer" @click="handleLogout">
-        Log Out
+    <div class="settings-section">
+      <div class="flex justify-between items-center">
+
+        <div>
+          <div class="section-title">Account</div>
+        </div>
+
+        <button
+            class="pushable delete"
+            @click="handleLogout"
+        >
+          <span class="shadow"></span>
+          <span class="edge"></span>
+
+          <span class="front">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Log Out
+          </span>
+        </button>
+
       </div>
     </div>
 

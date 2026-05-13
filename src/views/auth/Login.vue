@@ -9,7 +9,7 @@
           <img src="/login-icon.svg" alt="Login Icon" />
         </div>
 
-        <h2 class="title">KissMeet</h2>
+        <h2 class="title">KISMEET</h2>
         <p class="subtitle">Sign in to continue to your account</p>
 
         <form @submit.prevent="handleLogin" class="form">
@@ -24,6 +24,7 @@
             <input v-model="password" type="password" placeholder="Enter your password" />
           </div>
 
+          <!-- TODO: temporarily disabled
           <div class="row">
             <label class="remember">
               <input type="checkbox" v-model="remember" />
@@ -35,11 +36,22 @@
               Forgot password?
             </router-link>
           </div>
+          -->
 
-          <button class="btn" :disabled="loading">
-            <span v-if="!loading">Sign In</span>
+          <button
+              class="pushable update"
+              :disabled="loading"
+          >
+            <span class="shadow"></span>
+            <span class="edge"></span>
 
-            <span v-else class="spinner"></span>
+            <span class="front">
+              <i v-if="!loading" class="fa-solid fa-right-to-bracket"></i>
+
+              <span v-if="!loading">Sign In</span>
+
+              <span v-else class="spinner"></span>
+            </span>
           </button>
 
         </form>
@@ -83,7 +95,7 @@
 </script>
 
 <style scoped>
-  @import url('https://fonts.googleapis.com/css2?family=Chewy&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
   .login-bg {
     min-height: 100vh;
@@ -91,9 +103,29 @@
     align-items: center;
     justify-content: center;
 
-    background: url('/images/travel-bg.jpg') center/cover no-repeat;
     position: relative;
-    font-family: Poppins, sans-serif;
+
+    font-family: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    line-height: 1.5;
+
+    font-size: 0.8rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  .title {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 600;
+    color: #222;
+
+    font-family: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+    letter-spacing: 1px;
   }
 
   .overlay {
@@ -118,7 +150,7 @@
   .icon-wrapper {
     width: 70px;
     height: 70px;
-    margin: 0 auto 20px auto;
+    margin: 0 auto 10px auto;
     border-radius: 18px;
     padding:8px;
 
@@ -126,24 +158,13 @@
     align-items: center;
     justify-content: center;
 
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     box-shadow: 0 10px 25px rgba(37,117,252,0.3);
   }
 
   .icon-wrapper img {
     width: 38px;
     height: 38px;
-  }
-
-  .title {
-    text-align: center;
-    font-size: 46px;
-    font-weight: 400;
-    color: #222;
-
-    font-family: 'Chewy', cursive;
-
-    letter-spacing: 1px;
   }
 
   .subtitle {
@@ -159,13 +180,17 @@
     gap: 16px;
   }
 
+  .form .pushable {
+    margin-top: 16px;
+  }
+
   .input-group {
     display: flex;
     flex-direction: column;
   }
 
   .input-group label {
-    font-size: 12px;
+    font-size: 14px;
     color: #555;
     margin-bottom: 6px;
   }
@@ -330,23 +355,6 @@
     to {
       opacity: 1;
       transform: rotate(45deg) scale(1);
-    }
-  }
-
-  .spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-top-color: white;
-    border-radius: 50%;
-    display: inline-block;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
     }
   }
 

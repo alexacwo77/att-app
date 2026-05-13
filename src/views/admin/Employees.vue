@@ -101,9 +101,23 @@
               <button
                   v-if="rewardItem.isUsed !== true"
                   @click="markRewardUsed(rewardItem)"
-                  class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-lg"
+                  class="pushable update"
               >
-                Mark Used
+                <span class="shadow"></span>
+                <span class="edge"></span>
+
+                <span class="front">
+                  <i
+                      v-if="!loadingButtons[rewardItem.id]"
+                      class="fa-solid fa-check-to-slot"
+                  ></i>
+
+                  <span v-if="!loadingButtons[rewardItem.id]">
+                    Mark Used
+                  </span>
+
+                  <span v-else class="spinner"></span>
+                </span>
               </button>
 
             </div>
@@ -132,6 +146,7 @@
     const employees = ref([])
     const userRewards = ref([])
     const loading = ref(true)
+    const loadingButtons = ref({})
     const token = localStorage.getItem('token')
     const originalEmployees = ref([])
 
@@ -185,6 +200,8 @@
 
     const markRewardUsed = async (rewardItem) => {
 
+        loadingButtons.value[rewardItem.id] = true
+
         try {
 
             await updateUserReward(
@@ -209,6 +226,8 @@
                 'Failed to update reward',
                 'error'
             )
+        } finally {
+            loadingButtons.value[rewardItem.id] = false
         }
     }
 

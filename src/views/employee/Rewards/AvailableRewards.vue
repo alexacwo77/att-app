@@ -8,6 +8,7 @@
     <div class="filter-chips">
 
       <span
+          v-if="filteredRewards > 0"
           class="chip"
           :class="{ active: activeFilter === 'all' }"
           @click="activeFilter = 'all'"
@@ -16,7 +17,7 @@
       </span>
 
       <span
-          v-for="type in rewardTypes"
+          v-for="type in visibleRewardTypes"
           :key="type.id"
           class="chip"
           :class="{ active: activeFilter === type.id }"
@@ -55,19 +56,31 @@
         <div class="reward-actions">
 
           <button
-              v-if="reward.stock <= 0"
-              class="not-available-btn"
+              v-if="reward.stock <= 0 || isUserMaxed(reward)"
+              class="pushable delete"
               disabled
           >
-            Not available
+            <span class="shadow"></span>
+            <span class="edge"></span>
+
+            <span class="front">
+              <i class="fa-solid fa-ban"></i>
+              Not available
+            </span>
           </button>
 
           <button
               v-else-if="userPoints < reward.cost"
-              class="need-points-btn"
+              class="pushable delete"
               disabled
           >
-            Need {{ reward.cost - userPoints }} more
+            <span class="shadow"></span>
+            <span class="edge"></span>
+
+            <span class="front">
+              <i class="fa-solid fa-coins"></i>
+              Need {{ reward.cost - userPoints }} more
+            </span>
           </button>
 
           <RedeemButton
@@ -103,6 +116,10 @@
             type: Array,
             default: () => []
         },
+        redeemedRewards: {
+            type: Array,
+            default: () => []
+        },
         rewardTypes: {
             type: Array,
             default: () => []
@@ -121,16 +138,43 @@
 
     const token = localStorage.getItem("token")
 
+    const visibleRewardTypes = computed(() => {
+        const availableRewards = props.rewards.filter(reward => {
+            return !isUserMaxed(reward);
+        })
+
+        return props.rewardTypes.filter(type =>
+            availableRewards.some(
+                reward => reward.rewardTypeId === type.id
+            )
+        )
+    })
+
     const filteredRewards = computed(() => {
 
+        const base = props.rewards.filter(reward => {
+            return !isUserMaxed(reward);
+        })
+
         if (activeFilter.value === "all") {
-            return props.rewards
+            return base
         }
 
-        return props.rewards.filter(
+        return base.filter(
             r => r.rewardTypeId === activeFilter.value
         )
     })
+
+    const isUserMaxed = (reward) => {
+        const userCount = getUserRedeemedCount(reward.id)
+        return userCount >= reward.maxAmount
+    }
+
+    const getUserRedeemedCount = (rewardId) => {
+        return props.redeemedRewards.filter(r =>
+            r.reward.id === rewardId
+        ).reduce((sum, r) => sum + r.amount, 0)
+    }
 
     const redeem = async (reward, ctrl) => {
 

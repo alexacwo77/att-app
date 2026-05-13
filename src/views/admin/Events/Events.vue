@@ -7,12 +7,11 @@
     </div>
 
     <div v-else>
-
       <div class="font-semibold text-gray-700 dark:text-white mb-2">
         Create New Event
       </div>
 
-      <div class="bg-white rounded-xl shadow-sm p-4 mb-6 space-y-3">
+      <div class="bg-white rounded-xl shadow-sm p-4 mb-6 space-y-3 w-full max-w-none">
 
         <div>
           <label class="text-gray-500 text-xs">Event name</label>
@@ -23,7 +22,7 @@
           <label class="text-gray-500 text-xs">Location</label>
           <select
               v-model="newEvent.location_id"
-              class="w-full border rounded p-1 text-xs"
+              class="border rounded-lg p-2 text-sm w-full bg-white"
           >
             <option
                 v-for="location in locations"
@@ -88,18 +87,28 @@
               min="100"
               max="300"
               step="100"
-              class="w-full"
+              class="nice-slider"
+              :style="sliderStyle"
           />
-
         </div>
 
-        <button
-            class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm w-full disabled:opacity-50"
-            :disabled="!canCreate"
-            @click="createEvent"
-        >
-          Create Event
-        </button>
+        <div class="flex justify-end mt-4">
+
+          <button
+              class="pushable save"
+              :disabled="!canCreate"
+              @click="createEvent"
+          >
+            <span class="shadow"></span>
+            <span class="edge"></span>
+
+            <span class="front">
+              <i class="fa-solid fa-plus"></i>
+              Create Event
+            </span>
+          </button>
+
+        </div>
 
       </div>
 
@@ -117,7 +126,7 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, computed } from 'vue'
+    import { ref, onMounted, computed, watch } from 'vue'
     import {
         getEvents,
         createEvent as createEventApi,
@@ -134,6 +143,41 @@
     const users = ref([])
     const loading = ref(true)
     const token = localStorage.getItem('token')
+    const rangeRef = ref(null)
+    const tooltipLeft = ref(0)
+
+    const min = 100
+    const max = 300
+
+    const updateTooltip = () => {
+        if (!rangeRef.value) return
+
+        const el = rangeRef.value
+        const rect = el.getBoundingClientRect()
+
+        const percent = (newEvent.value.points - min) / (max - min)
+
+        tooltipLeft.value = percent * rect.width
+    }
+
+    const tooltipStyle = computed(() => ({
+        left: tooltipLeft.value + 'px',
+        visibility: 'visible'
+    }))
+
+    const stepDown = () => {
+        newEvent.value.points = Math.max(min, newEvent.value.points - 100)
+        updateTooltip()
+    }
+
+    const stepUp = () => {
+        newEvent.value.points = Math.min(max, newEvent.value.points + 100)
+        updateTooltip()
+    }
+
+    onMounted(() => {
+        updateTooltip()
+    })
 
     const newEvent = ref({
         name: '',
@@ -196,6 +240,18 @@
 
         return null
     }
+
+    const sliderStyle = computed(() => {
+        const min = 100
+        const max = 300
+        const val = newEvent.value.points
+
+        const percent = ((val - min) / (max - min)) * 100
+
+        return {
+            '--fill': `${percent}%`
+        }
+    })
 
     onMounted(async () => {
         try {
@@ -315,3 +371,91 @@
         events.value = events.value.filter(e => e.id !== id)
     }
 </script>
+
+<style scoped>
+  .nice-slider {
+    --c: #f69900;
+    --s: 28px;
+
+    width: 100%;
+    display: block;
+
+    height: var(--s);
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent; /* IMPORTANT */
+    cursor: pointer;
+  }
+
+  /* hover effect */
+  .nice-slider:hover {
+    --p: 25%;
+  }
+
+  /* ===== WebKit ===== */
+  .nice-slider::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 999px;
+
+    background: linear-gradient(
+        to right,
+        #f69900 0%,
+        #f69900 var(--fill, 50%),
+        #e5e7eb var(--fill, 50%),
+        #e5e7eb 100%
+    );
+  }
+
+  .nice-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+
+    height: var(--s);
+    width: var(--s);
+    border-radius: 50%;
+
+    background: white;
+    border: 3px solid var(--c);
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+    margin-top: -11px;
+
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .nice-slider:active::-webkit-slider-thumb {
+    transform: scale(1.2);
+  }
+
+  /* ===== Firefox ===== */
+  .nice-slider::-moz-range-track {
+    height: 6px;
+    border-radius: 999px;
+
+    background: linear-gradient(
+        to right,
+        #f69900 0%,
+        #f69900 var(--fill, 50%),
+        #e5e7eb var(--fill, 50%),
+        #e5e7eb 100%
+    );
+  }
+
+  .nice-slider::-moz-range-thumb {
+    height: var(--s);
+    width: var(--s);
+    border-radius: 50%;
+
+    background: white;
+    border: 3px solid var(--c);
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+    transition: transform 0.2s ease;
+  }
+
+  .nice-slider:active::-moz-range-thumb {
+    transform: scale(1.2);
+  }
+</style>

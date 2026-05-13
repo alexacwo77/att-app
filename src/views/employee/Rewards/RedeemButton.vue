@@ -1,29 +1,30 @@
 <template>
   <button
-      class="redeem-btn"
+      class="pushable update"
       :class="{ loading, done, disabled: isDisabled }"
       :disabled="isDisabled || loading"
       @click="handleClick"
   >
-    <span class="icon">
-      <svg viewBox="0 0 16 16" class="circle">
-        <circle cx="8" cy="8" r="7.5" />
-      </svg>
+    <span class="shadow"></span>
+    <span class="edge"></span>
 
-      <svg viewBox="0 0 12 12" class="check">
-        <path d="M2 6 L5 9 L10 3" />
-      </svg>
-    </span>
+    <span class="front">
+      <span class="icon">
+        <svg viewBox="0 0 16 16" class="circle">
+          <circle cx="8" cy="8" r="7.5" />
+        </svg>
 
-    <!-- TEXT -->
-    <span class="label">
-      <span v-if="!loading && !done">Redeem</span>
-
-      <span v-else-if="loading" class="dots">
-        <i></i><i></i><i></i>
+        <svg viewBox="0 0 12 12" class="check">
+          <path d="M2 6 L5 9 L10 3" />
+        </svg>
       </span>
 
-      <span v-else>Redeemed!</span>
+      <!-- TEXT -->
+      <span class="label">
+        <span v-if="!loading && !done">Redeem</span>
+
+        <span v-else>Redeemed!</span>
+      </span>
     </span>
   </button>
 </template>
@@ -62,42 +63,6 @@
 </script>
 
 <style scoped>
-  .redeem-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 8px 15px;
-    border-radius: 20px;
-
-    font-size: 13px;
-    font-weight: 600;
-
-    border: none;
-    white-space: nowrap;
-
-    cursor: pointer;
-    opacity: 0.8;
-
-    background: #667eea;
-    color: #fff;
-
-    transition: all 0.5s ease;
-  }
-
-  .redeem-btn.disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  .redeem-btn.loading {
-    background: #a3bffa;
-  }
-
-  .redeem-btn.done {
-    background: #48bb78;
-  }
-
   .icon {
     display: inline-block;
     position: relative;
@@ -111,7 +76,7 @@
     transition: width 0.6s ease;
   }
 
-  .redeem-btn.done .icon {
+  .pushable.done .icon {
     width: 18px;
     margin-right: 6px;
   }
@@ -135,7 +100,7 @@
     transform: scale(0.6);
   }
 
-  .redeem-btn.done .circle {
+  .pushable.done .circle {
     opacity: 1;
     transform: scale(1);
     color: rgba(255, 255, 255, 0.35);
@@ -146,7 +111,7 @@
     transform: scale(0.4);
   }
 
-  .redeem-btn.done .check {
+  .pushable.done .check {
     opacity: 1;
     transform: scale(1);
     transition: all 0.5s ease 0.25s;

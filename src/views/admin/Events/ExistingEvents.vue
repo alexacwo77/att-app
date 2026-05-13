@@ -82,14 +82,18 @@
       </div>
 
       <div>
-        <label class="text-gray-500 text-xs">Priority: {{ priorityLabel(e.points) }}</label>
+        <label class="text-gray-500 text-xs">
+          Priority: {{ priorityLabel(e.points) }}
+        </label>
+
         <input
             v-model.number="e.points"
             type="range"
             min="100"
             max="300"
             step="100"
-            class="w-full"
+            class="nice-slider"
+            :style="getSliderStyle(e.points)"
         />
       </div>
 
@@ -98,18 +102,30 @@
     <div class="flex justify-end gap-2 mt-3">
 
       <button
-          class="text-sm px-3 py-1 rounded-lg bg-red-500 text-white"
-          @click="deleteEvent(e.id)"
-      >
-        Delete
-      </button>
-
-      <button
-          class="text-sm px-3 py-1 rounded-lg bg-blue-600 text-white"
+          class="pushable save"
           :disabled="!canSaveEvent(e)"
           @click="saveEvent(e)"
       >
-        Save
+        <span class="shadow"></span>
+        <span class="edge"></span>
+
+        <span class="front">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Save
+        </span>
+      </button>
+
+      <button
+          class="pushable delete"
+          @click="deleteEvent(e.id)"
+      >
+        <span class="shadow"></span>
+        <span class="edge"></span>
+
+        <span class="front">
+          <i class="fa-solid fa-trash"></i>
+          Delete
+        </span>
       </button>
 
     </div>
@@ -198,6 +214,18 @@
         return null
     }
 
+    const getSliderStyle = (val) => {
+        const min = 100
+        const max = 300
+
+        const percent = ((val - min) / (max - min)) * 100
+
+        return {
+            '--fill': `${percent}%`,
+            '--c': '#f69900'
+        }
+    }
+
     const canSaveEvent = (e) => {
         if (!e.name || !e.date || !e.openTime || !e.startTime || !e.cutoffTime) {
             return false
@@ -253,3 +281,81 @@
         }
     }
 </script>
+<style scoped>
+  .nice-slider {
+    --c: #f69900;
+    --s: 28px;
+
+    width: 100%;
+    display: block;
+
+    height: var(--s);
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  /* track with fill */
+  .nice-slider::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 999px;
+
+    background: linear-gradient(
+        to right,
+        #f69900 0%,
+        #f69900 var(--fill, 50%),
+        #e5e7eb var(--fill, 50%),
+        #e5e7eb 100%
+    );
+  }
+
+  .nice-slider::-moz-range-track {
+    height: 6px;
+    border-radius: 999px;
+
+    background: linear-gradient(
+        to right,
+        #f69900 0%,
+        #f69900 var(--fill, 50%),
+        #e5e7eb var(--fill, 50%),
+        #e5e7eb 100%
+    );
+  }
+
+  /* thumb */
+  .nice-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+
+    height: var(--s);
+    width: var(--s);
+    border-radius: 50%;
+
+    background: white;
+    border: 3px solid var(--c);
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-top: -11px;
+
+    transition: transform 0.2s ease;
+  }
+
+  .nice-slider::-moz-range-thumb {
+    height: var(--s);
+    width: var(--s);
+    border-radius: 50%;
+
+    background: white;
+    border: 3px solid var(--c);
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+    transition: transform 0.2s ease;
+  }
+
+  .nice-slider:active::-webkit-slider-thumb,
+  .nice-slider:active::-moz-range-thumb {
+    transform: scale(1.2);
+  }
+</style>
