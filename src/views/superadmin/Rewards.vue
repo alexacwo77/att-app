@@ -300,7 +300,7 @@
             rewards.value.unshift({
                 id: rewardId,
                 name: newReward.value.name,
-                description: newReward.value.name,
+                description: newReward.value.description,
                 rewardType: rewardTypes.value.find(
                     t => t.id === newReward.value.reward_type_id
                 ),
