@@ -45,7 +45,7 @@
       <div class="space-y-1">
         <label class="text-xs text-gray-500">Reward Type</label>
         <select
-            v-model="newReward.reward_type_id"
+            v-model.number="newReward.reward_type_id"
             class="w-full border rounded-lg p-2 text-sm"
         >
           <option
@@ -152,9 +152,17 @@
             </div>
 
             <div class="space-y-1">
+              <label class="text-gray-500 text-xs">Description</label>
+              <input
+                  v-model="r.description"
+                  class="w-full border rounded-lg p-2 text-sm"
+              />
+            </div>
+
+            <div class="space-y-1">
               <label class="text-gray-500 text-xs">Type</label>
               <select
-                  v-model="r.rewardType.id"
+                  v-model.number="r.rewardTypeId"
                   class="w-full border rounded-lg p-2 text-sm"
               >
                 <option
@@ -292,10 +300,13 @@
             rewards.value.unshift({
                 id: rewardId,
                 name: newReward.value.name,
-                reward_type_id: newReward.value.reward_type_id,
+                description: newReward.value.name,
+                rewardType: rewardTypes.value.find(
+                    t => t.id === newReward.value.reward_type_id
+                ),
                 cost: newReward.value.cost,
                 stock: newReward.value.stock,
-                max_amount: newReward.value.max_amount,
+                maxAmount: newReward.value.max_amount,
                 picture: newReward.value.picture
             })
 
@@ -314,15 +325,17 @@
             showToast('Reward created', 'success')
 
         } catch (e) {
-            showToast('Create failed: ' + (e?.message || 'Unknown error'), 'error')
+            showToast('Create action failed: ' + (e?.message || 'Unknown error'), 'error')
         }
     }
 
     const saveReward = async (reward) => {
         try {
             await updateReward(reward.id, reward, token)
+
+            showToast('Reward updated', 'success')
         } catch (e) {
-            console.error(e)
+            showToast('Update action failed: ' + (e?.message || 'Unknown error'), 'error')
         }
     }
 
@@ -331,8 +344,10 @@
             await deleteReward(reward.id, token)
 
             rewards.value = rewards.value.filter(r => r.id !== reward.id)
+
+            showToast('Reward removed', 'success')
         } catch (e) {
-            console.error(e)
+            showToast('Remove action failed: ' + (e?.message || 'Unknown error'), 'error')
         }
     }
 </script>

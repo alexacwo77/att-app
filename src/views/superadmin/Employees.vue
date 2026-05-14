@@ -237,7 +237,7 @@
                 nickname: created.nickname || newUser.value.nickname,
                 email: created.email || newUser.value.email,
                 points: created.points ?? newUser.value.points,
-                card_id: created.card_id ?? newUser.value.card_id,
+                cardId: created.card_id ?? newUser.value.card_id,
                 role_name: created.role_name || newUser.value.role_name
             }
 
@@ -267,8 +267,7 @@
                 name: user.name,
                 nickname: user.nickname,
                 email: user.email,
-                role_name: user.role_name,
-                card_id: user.card_id
+                cardId: user.cardId
             }, token)
 
             showToast('Saved', 'success')
