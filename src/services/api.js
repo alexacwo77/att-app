@@ -1,4 +1,4 @@
-const API = 'https://att-backend-fdel.onrender.com'
+const API = 'https://kismeet-backend.duckdns.org'
 
 // Regarding response, see documentation section 4.1. Responses
 
